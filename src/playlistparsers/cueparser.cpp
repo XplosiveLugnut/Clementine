@@ -269,6 +269,7 @@ SongList CueParser::Load(QIODevice* device, const QString& playlist_path,
 // line into logical parts and getting rid of all the unnecessary whitespaces
 // and quoting.
 QStringList CueParser::SplitCueLine(const QString& line) const {
+  qDebug() << line;
   bool quoted = false;
   int start = 0;
   QStringList sl;
