@@ -320,6 +320,10 @@ QStringList CueParser::SplitCueLine(const QString& line) const {
       }
     }
   }
+  
+  for (int i = 0; i < sl.size(); ++i) {
+    qDebug() << sl[i] << " ";
+  }
 
   return sl;
 }
