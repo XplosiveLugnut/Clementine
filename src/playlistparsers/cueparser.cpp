@@ -293,6 +293,7 @@ QStringList CueParser::SplitCueLine(const QString& line) const {
       if (c == '\"') {
         if (s->isEmpty()) {
           sl.clear();
+          qDebug() << "fail 1";
           break;
         }
         start = i + 1;
@@ -300,18 +301,21 @@ QStringList CueParser::SplitCueLine(const QString& line) const {
       } else {
         if (i == last) {
           sl.clear();
+          qDebug() << "fail 2";
           break;
         }
         if (c == '\\') {
           c = line[++i];
           if (i == last) {
             sl.clear();
+            qDebug() << "fail 3";
             break;
           }
           if (c == '\"' or c == '\\') {
             s->append(c);
           } else {
             sl.clear();
+            qDebug() << "fail 4";
             break;
           }
         } else {
@@ -321,8 +325,12 @@ QStringList CueParser::SplitCueLine(const QString& line) const {
     }
   }
   
+  if (sl.size()) {
   for (int i = 0; i < sl.size(); ++i) {
     qDebug() << sl[i] << " ";
+  }
+  } else {
+    qDebug() << "empty";
   }
 
   return sl;
