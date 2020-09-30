@@ -264,18 +264,64 @@ SongList CueParser::Load(QIODevice* device, const QString& playlist_path,
   return ret;
 }
 
-// This and the kFileLineRegExp do most of the "dirty" work, namely: splitting
+// This does most of the "dirty" work, namely: splitting
 // the raw .cue
 // line into logical parts and getting rid of all the unnecessary whitespaces
 // and quoting.
 QStringList CueParser::SplitCueLine(const QString& line) const {
-  QRegExp line_regexp(kFileLineRegExp);
-  if (!line_regexp.exactMatch(line.trimmed())) {
-    return QStringList();
+  bool quoted = false;
+  int start = 0;
+  QStringList sl;
+  QString *s;
+  QChar c;
+  int size = line.size();
+  int last = size - 1;
+  for (int i = 0; i < size; ++i) {
+    if (!quoted) {
+      if (line[i] == '\"') {
+        sl.push_back(QString());
+        s = &sl.back();
+        quoted = true;
+      } else if (line[i] == ' ' or i == last) {
+        if (start != i) {
+          sl.push_back(line.mid(start, i - start));
+        }
+        start = i + 1;
+      }
+    } else {
+      c = line[i];
+      if (c == '\"') {
+        if (s->isEmpty()) {
+          sl.clear();
+          break;
+        }
+        start = i + 1;
+        quoted = false;
+      } else {
+        if (i == last) {
+          sl.clear();
+          break;
+        }
+        if (c == '\\') {
+          c = line[++i];
+          if (i == last) {
+            sl.clear();
+            break;
+          }
+          if (c == '\"' or c == '\\') {
+            s->append(c);
+          } else {
+            sl.clear();
+            break;
+          }
+        } else {
+          s->append(c);
+        }
+      }
+    }
   }
 
-  // let's remove the empty entries while we're at it
-  return line_regexp.capturedTexts().filter(QRegExp(".+")).mid(1, -1);
+  return sl;
 }
 
 // Updates the song with data from the .cue entry. This one mustn't be used for
