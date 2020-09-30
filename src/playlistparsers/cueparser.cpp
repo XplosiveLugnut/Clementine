@@ -283,11 +283,15 @@ QStringList CueParser::SplitCueLine(const QString& line) const {
         sl.push_back(QString());
         s = &sl.back();
         quoted = true;
-      } else if (line[i] == ' ' or i == last) {
+      } else if (line[i] == ' ') {
         if (start != i) {
           sl.push_back(line.mid(start, i - start));
         }
         start = i + 1;
+      } else if (i == last) {
+        if (start != i) {
+          sl.push_back(line.mid(start, size - start));
+        }
       }
     } else {
       c = line[i];
